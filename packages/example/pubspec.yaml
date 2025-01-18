@@ -56,3 +56,8 @@ flutter:
     - assets/images/
     - assets/.env
     - assets/images/child_dog.jpg
+    - assets/images/connect.png
+    - assets/images/btn_01.jpg
+    - assets/images/btn_02.jpg
+    - assets/images/btn_03.jpg
+    - assets/images/btn_busy.jpg

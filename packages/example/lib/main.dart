@@ -13,9 +13,10 @@
 // limitations under the License.
 
 import 'package:flutter/cupertino.dart';
-
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: 'assets/.env');
   return runApp(CupertinoStoreApp());
 }
