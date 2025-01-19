@@ -17,6 +17,16 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
 
 bool qrcode_isBusy = false;
+
+bool mqttIsOnline = false;
+String deviceName = '';
+late Widget viewPageQrcode;
+late Widget cpConnectButton;
+
+// Function connectServer;
+// Widget viewPageQrcode;
+// Function onJsonDecoded;
+
 void main() async {
   await dotenv.load(fileName: 'assets/.env');
   return runApp(CupertinoStoreApp());

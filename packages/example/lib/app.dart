@@ -14,13 +14,14 @@ import 'vision_detector_views/qrcode_scanner_view.dart';
 import 'vision_detector_views/barcode_scanner_view.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bot_toast/bot_toast.dart';
+import '../main.dart';
+import 'widgets/ConnectButton.dart';
 
 late MqttBrowserClient clientBrowser;
 late MqttServerClient clientServer;
-late bool mqtt_is_on_line = false;
+//late bool mqtt_is_on_line = false;
 late Map<String, dynamic> json_qrcode = {};
 String deviceInfo = 'Loading...';
-String deviceName = '';
 
 class CupertinoStoreApp extends StatefulWidget {
   @override
@@ -61,6 +62,16 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
   late Widget _viewPage_qrcode;
   @override
   Widget build(BuildContext context) {
+    cpConnectButton = ConnectButton();
+    viewPageQrcode = QrcodeScannerView(onJsonDecoded: (json) {
+      json_qrcode = json;
+      deviceName = json_qrcode['topic'];
+      dotenv.env['MQTT_SERVER_URL'] = "ws://" + json_qrcode['mqtt'];
+      dotenv.env['MQTT_TOPIC'] = json_qrcode['topic'];
+
+      connect_Server(json_qrcode['mqtt'], json_qrcode['topic']);
+    });
+
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text('VIS Scanner'),
@@ -71,75 +82,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
         children: [
           // 插入一個空白的空間
           SizedBox(height: 80),
-          SizedBox(
-            height: 120, // 設置高度
-            width: MediaQuery.of(context).size.width * 0.95, // 設置寬度
-            child: Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/images/connect.png'), // 設置背景圖片
-                  fit: BoxFit.fitWidth,
-                ),
-                borderRadius: BorderRadius.circular(8.0), // 設置邊框圓角
-              ),
-              child: ElevatedButton(
-                onPressed: () => {
-                  // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                  //   content: Text("連接失敗，請檢查網路連線。1111"),
-                  // ))
-                  BotToast.showText(
-                    text: '連接失敗，請檢查網路連線。2222',
-                    duration: Duration(seconds: 3),
-                    align: Alignment.bottomCenter,
-                    contentColor: Colors.red,
-                    textStyle: TextStyle(color: Colors.white, fontSize: 16),
-                  )
-                },
-                onLongPress: () {
-                  // 長按事件的處理邏輯
-                  this._viewPage_qrcode = QrcodeScannerView(onJsonDecoded: (json) {
-                    json_qrcode = json;
-                    deviceName = json_qrcode['topic'];
-                    connect_Server(json_qrcode['mqtt'], json_qrcode['topic']);
-                  });
-
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => this._viewPage_qrcode));
-                },
-                style: ElevatedButton.styleFrom(
-                  //,
-                  backgroundColor: mqtt_is_on_line ? const Color.fromARGB(255, 246, 247, 246).withOpacity(0.7) : const Color.fromARGB(255, 247, 8, 8).withOpacity(0.5),
-                  shadowColor: Colors.transparent, // 設置陰影顏色
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8.0), // 設置按鈕圓角
-                  ),
-                ),
-                child: Column(children: [
-                  SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerLeft, // 將文字靠左對齊
-                    child: Text(
-                      mqtt_is_on_line ? '裝置連線中' : '未連接裝置',
-                      style: TextStyle(fontSize: 24, color: mqtt_is_on_line ? const Color.fromARGB(255, 255, 255, 255) : const Color.fromARGB(255, 255, 255, 255)),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft, // 將文字靠左對齊
-                    child: Text(
-                      mqtt_is_on_line ? deviceName : "---",
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.normal, color: const Color.fromARGB(255, 17, 17, 204)),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerLeft, // 將文字靠左對齊
-                    child: Text(
-                      '連接新電腦，請長按。',
-                      style: TextStyle(fontSize: 16, color: const Color.fromARGB(255, 0, 0, 0)),
-                    ),
-                  )
-                ]), // 按鈕文字
-              ),
-            ),
-          ),
+          cpConnectButton,
           Row(
             children: [
               Expanded(
@@ -149,7 +92,6 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                     padding: const EdgeInsets.all(8.0),
                     child: CupertinoButton(
                       padding: EdgeInsets.zero, // 移除內邊距
-
                       onPressed: () {
                         // 按鈕點擊事件處理邏輯
                         Navigator.push(context, MaterialPageRoute(builder: (context) => this._PtsLingJian));
@@ -373,7 +315,9 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
       await clientServer.connect();
       print('canred-mqtt-03');
       setState(() {
-        mqtt_is_on_line = true;
+        mqttIsOnline = true;
+        cpConnectButton = ConnectButton();
+        // 我要強制 ConnectButton 重新繪製
       });
     } on NoConnectionException catch (e) {
       print('NoConnectionException:$e');
@@ -428,13 +372,13 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
     try {
       clientBrowser.disconnect();
       setState(() {
-        mqtt_is_on_line = false;
+        mqttIsOnline = false;
       });
     } catch (e) {}
     try {
       clientServer.disconnect();
       setState(() {
-        mqtt_is_on_line = false;
+        mqttIsOnline = false;
       });
     } catch (e) {}
     print('Disconnected');
@@ -442,7 +386,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
   void onConnected() {
     setState(() {
-      mqtt_is_on_line = true;
+      mqttIsOnline = true;
     });
 
     BotToast.showText(
@@ -457,7 +401,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
   void onDisconnected() {
     setState(() {
-      mqtt_is_on_line = false;
+      mqttIsOnline = false;
     });
     print('Disconnected');
   }
