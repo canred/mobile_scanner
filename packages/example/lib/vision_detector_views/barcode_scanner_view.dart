@@ -4,6 +4,7 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 import 'package:bot_toast/bot_toast.dart';
 import 'detector_view.dart';
 import 'painters/barcode_detector_painter.dart';
+import '../main.dart';
 
 class BarcodeScannerView extends StatefulWidget {
   @override
@@ -13,7 +14,7 @@ class BarcodeScannerView extends StatefulWidget {
 class _BarcodeScannerViewState extends State<BarcodeScannerView> {
   final BarcodeScanner _barcodeScanner = BarcodeScanner();
   bool _canProcess = true;
-  bool _isBusy = false;
+
   CustomPaint? _customPaint;
   String? _text;
   var _cameraLensDirection = CameraLensDirection.back;
@@ -39,8 +40,8 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
 
   Future<void> _processImage(InputImage inputImage) async {
     if (!_canProcess) return;
-    if (_isBusy) return;
-    _isBusy = true;
+    if (qrcode_isBusy) return;
+    qrcode_isBusy = true;
     setState(() {
       _text = '';
     });
@@ -81,7 +82,7 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
       // TODO: set _customPaint to draw boundingRect on top of image
       _customPaint = null;
     }
-    _isBusy = false;
+    qrcode_isBusy = false;
     if (mounted) {
       setState(() {});
     }

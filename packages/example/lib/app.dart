@@ -9,6 +9,7 @@ import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 import 'package:mqtt_client/mqtt_browser_client.dart';
 
+import 'pages/ptsLingJian.dart';
 import 'vision_detector_views/qrcode_scanner_view.dart';
 import 'vision_detector_views/barcode_scanner_view.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -50,11 +51,13 @@ class CupertinoStoreHomePage extends StatefulWidget {
   const CupertinoStoreHomePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _CupertinoStoreHomePageState createState() => _CupertinoStoreHomePageState();
 }
 
 class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
   final Widget _viewPage_bc = BarcodeScannerView();
+  final Widget _PtsLingJian = PtsLingJian();
   late Widget _viewPage_qrcode;
   @override
   Widget build(BuildContext context) {
@@ -149,7 +152,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
                       onPressed: () {
                         // 按鈕點擊事件處理邏輯
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => this._viewPage_bc));
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => this._PtsLingJian));
                       },
                       child: SizedBox(
                         height: 200, // 設置高度
