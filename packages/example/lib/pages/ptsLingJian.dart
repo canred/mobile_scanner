@@ -3,7 +3,9 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../vision_detector_views/barcode_scanner_view.dart';
 import '../widgets/ConnectButton.dart';
+import '../widgets/lingJianList.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:uuid/uuid.dart';
@@ -18,20 +20,45 @@ class PtsLingJian extends StatefulWidget {
 
 class _PtsLingJianState extends State<PtsLingJian> {
   late dynamic box;
+  late Map<String, dynamic> json_barcode = {};
   @override
   void initState() {
-    super.initState();
     initHive();
+    super.initState();
   }
 
   Future<void> initHive() async {
     await Hive.initFlutter();
     box = await Hive.openBox('lingJian');
+    viewPageBarcode = BarcodeScannerView(onScanAfter: (barcode) async {
+      //var box = await Hive.openBox('lingJian');
+      var now = DateTime.now();
+      var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
+      var item = {
+        'id': barcode,
+        'barcode': barcode,
+        'scan_dt': formattedDate,
+        'ack': 'enter',
+        'is_send': 0,
+      };
+      int correctIndex = box.values.toList().indexWhere((element) => element['id'] == item['id']);
+      if (correctIndex == -1) {
+        await box.put(barcode, item);
+        setState(() {
+          print('更新資料');
+        });
+      } else {
+        print('資料已經存在了');
+      }
+
+      //print('item: $item');
+      //setState(() {});
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    box = Hive.openBox('lingJian');
+    //box = Hive.openBox('lingJian');
 
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
@@ -51,63 +78,85 @@ class _PtsLingJianState extends State<PtsLingJian> {
               },
             ),
           ),
-          ElevatedButton(
-              onPressed: () async {
-                var box = await Hive.openBox('lingJian');
-                var uuid = Uuid();
-                var now = DateTime.now();
-                var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
-                var item = {
-                  'id': uuid.v4(),
-                  'barcode': uuid.v4(),
-                  'scan_dt': formattedDate,
-                  'ack': 'enter',
-                  'is_send': 0,
-                };
-                await box.put(item['id'], item);
-                print('item: $item');
-                setState(() {});
-              },
-              child: Text('產生假資料')),
-          Transform.translate(
-            offset: Offset(0, -70), // 向上移動 100 單位
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height - 200, // 設置高度
-              child: Container(
-                decoration: BoxDecoration(
-                    //border: Border.all(color: Colors.blue, width: 2.0), // 設置邊框
-                    ),
-                child: ValueListenableBuilder(
-                  valueListenable: Hive.box('lingJian').listenable(),
-                  builder: (context, Box box, _) {
-                    List<Map<dynamic, dynamic>> sortedItems = [];
-                    for (var i = 0; i < box.length; i++) {
-                      sortedItems.add(box.getAt(i));
-                    }
-                    sortedItems.sort((a, b) => a['scan_dt'].compareTo(b['scan_dt']));
-                    return ListView.builder(
-                      //shrinkWrap: true,
-                      itemCount: sortedItems.length,
-                      itemBuilder: (context, index) {
-                        var item = sortedItems[index];
-                        return Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.blue, width: 1.0), // 設置邊框
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                          ),
-                          margin: EdgeInsets.symmetric(vertical: 4.0, horizontal: 8.0), // 設置外邊距
-                          child: ListTile(
-                            title: Text(item['scan_dt']),
-                            subtitle: Text(item['barcode']),
-                            trailing: Text(item['ack']),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
+          Stack(
+            children: <Widget>[
+              Transform.translate(
+                offset: Offset(0, -20),
+                child: LingJianList(),
               ),
-            ),
+              Row(
+                children: [
+                  Container(
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(
+                      color: Colors.white, // 設置底色
+                    ),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 8),
+                        SizedBox(
+                          width: 80,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              side: BorderSide(color: Colors.blue, width: 1.0), // 設置邊框
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.0), // 設置圓角
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.plus_one), // 相機圖標
+                                SizedBox(width: 8), // 圖標和文本之間的間距
+                              ],
+                            ),
+                            onPressed: () async {
+                              var box = await Hive.openBox('lingJian');
+                              var uuid = Uuid();
+                              var now = DateTime.now();
+                              var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
+                              var item = {
+                                'id': uuid.v4(),
+                                'barcode': uuid.v4(),
+                                'scan_dt': formattedDate,
+                                'ack': 'enter',
+                                'is_send': 0,
+                              };
+                              await box.put(item['id'], item);
+                              print('item: $item');
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            side: BorderSide(color: Colors.blue, width: 1.0), // 設置邊框
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.0), // 設置圓角
+                            ),
+                          ),
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => viewPageBarcode),
+                            );
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.camera_alt), // 相機圖標
+                              SizedBox(width: 8), // 圖標和文本之間的間距
+                              Text('掃描'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            ],
           ),
         ])),
       )),

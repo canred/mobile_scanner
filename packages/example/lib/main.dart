@@ -15,12 +15,17 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'app.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:uuid/uuid.dart';
+import 'package:intl/intl.dart';
 
 bool qrcode_isBusy = false;
 
 bool mqttIsOnline = false;
 String deviceName = '';
 late Widget viewPageQrcode;
+late Widget viewPageBarcode;
 late Widget cpConnectButton;
 
 // Function connectServer;
@@ -29,5 +34,22 @@ late Widget cpConnectButton;
 
 void main() async {
   await dotenv.load(fileName: 'assets/.env');
+  await Hive.initFlutter();
+  var box = await Hive.openBox('lingJian');
+  if (box.values.length == 0) {
+    var uuid = Uuid();
+    var now = DateTime.now();
+    var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
+    var item = {
+      'id': uuid.v4(),
+      'barcode': uuid.v4(),
+      'scan_dt': formattedDate,
+      'ack': 'enter',
+      'is_send': 0,
+    };
+    await box.put(item['id'], item);
+  }
+  // var box = await Hive.openBox('lingJian');
+
   return runApp(CupertinoStoreApp());
 }

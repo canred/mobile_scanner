@@ -57,9 +57,10 @@ class CupertinoStoreHomePage extends StatefulWidget {
 }
 
 class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
-  final Widget _viewPage_bc = BarcodeScannerView();
+  //final Widget _viewPage_bc = BarcodeScannerView();
   final Widget _PtsLingJian = PtsLingJian();
-  late Widget _viewPage_qrcode;
+  //late Widget _viewPage_qrcode;
+  //late Widget _viewPage_qrcode;
   @override
   Widget build(BuildContext context) {
     cpConnectButton = ConnectButton();

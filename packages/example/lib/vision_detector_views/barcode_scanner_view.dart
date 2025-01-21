@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
@@ -7,6 +9,9 @@ import 'painters/barcode_detector_painter.dart';
 import '../main.dart';
 
 class BarcodeScannerView extends StatefulWidget {
+  final Function(String) onScanAfter;
+
+  BarcodeScannerView({required this.onScanAfter});
   @override
   State<BarcodeScannerView> createState() => _BarcodeScannerViewState();
 }
@@ -55,14 +60,15 @@ class _BarcodeScannerViewState extends State<BarcodeScannerView> {
       );
       try {
         // 這邊有完整的barcode資訊
-        // 這邊有完整的barcode資訊
-        BotToast.showText(
-          text: barcodes.last.rawValue!!,
-          duration: Duration(seconds: 10),
-          align: Alignment.bottomCenter,
-          contentColor: Colors.green,
-          textStyle: TextStyle(color: Colors.white, fontSize: 16),
-        );
+        if (barcodes.last.rawValue != null) {
+          try {
+            widget.onScanAfter(barcodes.last.rawValue.toString());
+            // 在返回上一個畫面之前進行清理操作
+            //_canProcess = false;
+            //_barcodeScanner.close();
+            //Navigator.pop(context); // 返回到 main 畫面
+          } catch (e) {}
+        }
 
         //print("canred" + barcodes.last.rawValue!!);
       } catch (e) {
