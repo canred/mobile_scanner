@@ -49,6 +49,16 @@ void main() async {
     };
     await box.put(item['id'], item);
   }
+
+  var box_setting = await Hive.openBox('vis_scanner_setting');
+  if (box_setting.values.length == 0) {
+    var item_setting = {
+      'mqtt_server': '',
+      'mqtt_topic': '',
+      'pc_name': '',
+    };
+    await box_setting.put('mqtt_setting', item_setting);
+  }
   // var box = await Hive.openBox('lingJian');
 
   return runApp(CupertinoStoreApp());

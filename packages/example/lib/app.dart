@@ -16,6 +16,8 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:bot_toast/bot_toast.dart';
 import '../main.dart';
 import 'widgets/ConnectButton.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 late MqttBrowserClient clientBrowser;
 late MqttServerClient clientServer;
@@ -29,6 +31,22 @@ class CupertinoStoreApp extends StatefulWidget {
 }
 
 class _CupertinoStoreAppState extends State<CupertinoStoreApp> {
+  late dynamic box_setting_mqtt;
+  @override
+  void initState() {
+    super.initState();
+    initHive();
+  }
+
+  Future<void> initHive() async {
+    await Hive.initFlutter();
+    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+
+    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt[0]['mqtt_server'];
+    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt[0]['mqtt_topic'];
+    deviceName = box_setting_mqtt[0]['pc_name'];
+  }
+
   @override
   Widget build(BuildContext context) {
     dotenv.load(fileName: 'assets/.env');
@@ -57,48 +75,109 @@ class CupertinoStoreHomePage extends StatefulWidget {
 }
 
 class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
+  late dynamic box_setting_mqtt;
   //final Widget _viewPage_bc = BarcodeScannerView();
   final Widget _PtsLingJian = PtsLingJian();
-  //late Widget _viewPage_qrcode;
-  //late Widget _viewPage_qrcode;
+  @override
+  void initState() {
+    super.initState();
+    initHive();
+  }
+
+  Future<void> initHive() async {
+    await Hive.initFlutter();
+    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+
+    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first['mqtt_server'];
+    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt.values.first['mqtt_topic'];
+    deviceName = box_setting_mqtt.values.first['pc_name'];
+  }
+
   @override
   Widget build(BuildContext context) {
-    cpConnectButton = ConnectButton();
-    viewPageQrcode = QrcodeScannerView(onJsonDecoded: (json) {
+    cpConnectButton = ConnectButton(mqtt_server_connect: () {
+      //box_setting_mqtt = Hive.openBox('vis_scanner_setting');
+      connect_Server(box_setting_mqtt.values.first['mqtt_server']!, box_setting_mqtt.values.first['mqtt_topic']!);
+      deviceName = dotenv.env['MQTT_TOPIC']!;
+    });
+    viewPageQrcode = QrcodeScannerView(onJsonDecoded: (json) async {
       json_qrcode = json;
       deviceName = json_qrcode['topic'];
       dotenv.env['MQTT_SERVER_URL'] = "ws://" + json_qrcode['mqtt'];
       dotenv.env['MQTT_TOPIC'] = json_qrcode['topic'];
+      var box_setting = await Hive.openBox('vis_scanner_setting');
+
+      var item_setting = {
+        'mqtt_server': dotenv.env['MQTT_SERVER_URL'],
+        'mqtt_topic': dotenv.env['MQTT_TOPIC'],
+        'pc_name': dotenv.env['MQTT_TOPIC'],
+      };
+      await box_setting.put('mqtt_setting', item_setting);
 
       connect_Server(json_qrcode['mqtt'], json_qrcode['topic']);
     });
 
     return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('VIS Scanner'),
-        leading: Icon(CupertinoIcons.bars), // 加上系統設定的 ICON
-      ),
-      child: Column(
-        //mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          // 插入一個空白的空間
-          SizedBox(height: 80),
-          cpConnectButton,
-          Row(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('VIS Scanner'),
+          leading: Icon(CupertinoIcons.bars), // 加上系統設定的 ICON
+        ),
+        child: SingleChildScrollView(
+          //scrollDirection: Axis.vertical,
+          child: Column(
+            //mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CupertinoButton(
-                      padding: EdgeInsets.zero, // 移除內邊距
-                      onPressed: () {
-                        // 按鈕點擊事件處理邏輯
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => this._PtsLingJian));
-                      },
-                      child: SizedBox(
-                        height: 200, // 設置高度
+              // 插入一個空白的空間
+              SizedBox(height: 80),
+              cpConnectButton,
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CupertinoButton(
+                          padding: EdgeInsets.zero, // 移除內邊距
+                          onPressed: () {
+                            // 按鈕點擊事件處理邏輯
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => this._PtsLingJian));
+                          },
+                          child: SizedBox(
+                            height: 200, // 設置高度
+                            child: Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                Positioned.fill(
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                    child: Image.asset(
+                                      'assets/images/btn_01.jpg', // 替換為你的按鈕底圖路徑
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  color: CupertinoColors.white.withOpacity(0.7),
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                  child: Text(
+                                    'PTS\n零件上機/下機',
+                                    style: TextStyle(color: CupertinoColors.black),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
                         child: Stack(
                           alignment: Alignment.bottomCenter,
                           children: [
@@ -106,7 +185,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
-                                  'assets/images/btn_01.jpg', // 替換為你的按鈕底圖路徑
+                                  'assets/images/btn_02.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -116,7 +195,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                               width: double.infinity,
                               padding: EdgeInsets.all(8.0), // 添加一些內邊距
                               child: Text(
-                                'PTS\n零件上機/下機',
+                                'Excel\n掃描到Excel',
                                 style: TextStyle(color: CupertinoColors.black),
                               ),
                             ),
@@ -125,187 +204,155 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                            child: Image.asset(
-                              'assets/images/btn_02.jpg', // 替換為你的按鈕底圖路徑
-                              fit: BoxFit.cover,
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                child: Image.asset(
+                                  'assets/images/btn_03.jpg', // 替換為你的按鈕底圖路徑
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
+                            Container(
+                              color: CupertinoColors.white.withOpacity(0.7),
+                              width: double.infinity,
+                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                              child: Text(
+                                'PTS\n出貨QC檢查',
+                                style: TextStyle(color: CupertinoColors.black),
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          color: CupertinoColors.white.withOpacity(0.7),
-                          width: double.infinity,
-                          padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                          child: Text(
-                            'Excel\n掃描到Excel',
-                            style: TextStyle(color: CupertinoColors.black),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                child: Image.asset(
+                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              color: CupertinoColors.white.withOpacity(0.7),
+                              width: double.infinity,
+                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                              child: Text(
+                                '\n施工中',
+                                style: TextStyle(color: CupertinoColors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                child: Image.asset(
+                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              color: CupertinoColors.white.withOpacity(0.7),
+                              width: double.infinity,
+                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                              child: Text(
+                                '\n施工中',
+                                style: TextStyle(color: CupertinoColors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Stack(
+                          alignment: Alignment.bottomCenter,
+                          children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                child: Image.asset(
+                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              color: CupertinoColors.white.withOpacity(0.7),
+                              width: double.infinity,
+                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                              child: Text(
+                                '\n施工中',
+                                style: TextStyle(color: CupertinoColors.black),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              //Spacer(height: 1), // 添加這行以確保有適當的大小
+              SizedBox(height: 1), // 添加這行以確保有適當的大小
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  '© 2025 世界先進. All rights reserved.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: CupertinoColors.systemGrey,
                   ),
                 ),
               ),
             ],
           ),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                            child: Image.asset(
-                              'assets/images/btn_03.jpg', // 替換為你的按鈕底圖路徑
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          color: CupertinoColors.white.withOpacity(0.7),
-                          width: double.infinity,
-                          padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                          child: Text(
-                            'PTS\n出貨QC檢查',
-                            style: TextStyle(color: CupertinoColors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                            child: Image.asset(
-                              'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          color: CupertinoColors.white.withOpacity(0.7),
-                          width: double.infinity,
-                          padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                          child: Text(
-                            '\n施工中',
-                            style: TextStyle(color: CupertinoColors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                            child: Image.asset(
-                              'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          color: CupertinoColors.white.withOpacity(0.7),
-                          width: double.infinity,
-                          padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                          child: Text(
-                            '\n施工中',
-                            style: TextStyle(color: CupertinoColors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: SizedBox(
-                  height: 200,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0), // 設置圓角
-                            child: Image.asset(
-                              'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          color: CupertinoColors.white.withOpacity(0.7),
-                          width: double.infinity,
-                          padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                          child: Text(
-                            '\n施工中',
-                            style: TextStyle(color: CupertinoColors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Spacer(),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Text(
-              '© 2025 世界先進. All rights reserved.',
-              style: TextStyle(
-                fontSize: 12,
-                color: CupertinoColors.systemGrey,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+        ));
   }
 
   Future<void> connect_Server(String mqtt_ip, String topic) async {
@@ -317,7 +364,9 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
       print('canred-mqtt-03');
       setState(() {
         mqttIsOnline = true;
-        cpConnectButton = ConnectButton();
+        cpConnectButton = ConnectButton(mqtt_server_connect: () {
+          connect_Server(dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
+        });
         // 我要強制 ConnectButton 重新繪製
       });
     } on NoConnectionException catch (e) {
@@ -347,7 +396,11 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
   void setupMqttClient_Server(String qrCode_mqtt_serverip, String topic) {
     if (qrCode_mqtt_serverip != '' && topic != '') {
-      dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
+      if (qrCode_mqtt_serverip.startsWith('ws://')) {
+        dotenv.env['MQTT_SERVER_URL'] = qrCode_mqtt_serverip;
+      } else {
+        dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
+      }
     }
     clientServer = MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
     clientServer.port = int.parse(dotenv.env['MQTT_PORT']!);

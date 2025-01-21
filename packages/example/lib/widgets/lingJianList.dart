@@ -25,10 +25,22 @@ class LingJianList extends StatefulWidget {
 class _LingJianListState extends State<LingJianList> {
   var box = Hive.box('lingJian');
   late MqttServerClient clientServer;
+
+  late dynamic box_setting_mqtt;
+
   @override
   void initState() {
     super.initState();
-    box = Hive.box('lingJian');
+    initHive();
+  }
+
+  Future<void> initHive() async {
+    await Hive.initFlutter();
+    box = await Hive.openBox('lingJian');
+    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first['mqtt_server'];
+    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt.values.first['mqtt_topic'];
+    deviceName = box_setting_mqtt.values.first['pc_name'];
   }
 
   @override
@@ -91,7 +103,7 @@ class _LingJianListState extends State<LingJianList> {
                                 icon: Icon(Icons.delete, color: Colors.red)),
                             IconButton(
                                 onPressed: () async {
-                                  publishMessage_server("barcode/" + json_qrcode["topic"], """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
+                                  publishMessage_server("barcode/" + box_setting_mqtt.values.first['mqtt_topic']!, """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
 
                                   int correctIndex = box.values.toList().indexWhere((element) => element['id'] == item['id']);
                                   if (correctIndex != -1) {
@@ -145,7 +157,11 @@ class _LingJianListState extends State<LingJianList> {
 
   void setupMqttClient_Server(String qrCode_mqtt_serverip, String topic) {
     if (qrCode_mqtt_serverip != '' && topic != '') {
-      dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
+      if (qrCode_mqtt_serverip.startsWith('ws://')) {
+        dotenv.env['MQTT_SERVER_URL'] = qrCode_mqtt_serverip;
+      } else {
+        dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
+      }
     }
     clientServer = MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
     clientServer.port = int.parse(dotenv.env['MQTT_PORT']!);
@@ -168,7 +184,7 @@ class _LingJianListState extends State<LingJianList> {
   }
 
   Future<void> connect_Server() async {
-    setupMqttClient_Server(dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
+    setupMqttClient_Server(box_setting_mqtt.values.first['mqtt_server']!, box_setting_mqtt.values.first['mqtt_topic']!);
     try {
       await clientServer.connect();
       setState(() {

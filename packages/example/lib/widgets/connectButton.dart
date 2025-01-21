@@ -3,20 +3,42 @@ import 'package:flutter/cupertino.dart';
 import 'package:bot_toast/bot_toast.dart';
 import '../main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class ConnectButton extends StatefulWidget {
-  // final bool mqttIsOnline;
-  // final String deviceName;
-  // final Function connectServer;
-  // final Widget viewPageQrcode;
-  // final Function onJsonDecoded;
-  ConnectButton() : super();
-
+  final Function() mqtt_server_connect;
+  ConnectButton({required this.mqtt_server_connect});
   @override
   _ConnectButtonState createState() => _ConnectButtonState();
 }
 
+// class QrcodeScannerView extends StatefulWidget {
+//   final Function(Map<String, dynamic>) onJsonDecoded;
+
+//   QrcodeScannerView({required this.onJsonDecoded});
+
+//   @override
+//   State<QrcodeScannerView> createState() => _QrcodeScannerViewState();
+// }
+
 class _ConnectButtonState extends State<ConnectButton> {
+  late dynamic box_setting_mqtt;
+  @override
+  void initState() {
+    super.initState();
+    initHive();
+  }
+
+  Future<void> initHive() async {
+    await Hive.initFlutter();
+    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+
+    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first["mqtt_server"];
+    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt[0]['mqtt_topic'];
+    deviceName = box_setting_mqtt[0]['pc_name'];
+  }
+
   @override
   Widget build(BuildContext context) {
     dotenv.load(fileName: 'assets/.env');
@@ -35,13 +57,14 @@ class _ConnectButtonState extends State<ConnectButton> {
         ),
         child: ElevatedButton(
           onPressed: () {
-            BotToast.showText(
-              text: '連接失敗，請檢查網路連線。',
-              duration: Duration(seconds: 3),
-              align: Alignment.bottomCenter,
-              contentColor: Colors.red,
-              textStyle: TextStyle(color: Colors.white, fontSize: 16),
-            );
+            widget.mqtt_server_connect();
+            // BotToast.showText(
+            //   text: box_setting_mqtt.values.first['mqtt_server'],
+            //   duration: Duration(seconds: 3),
+            //   align: Alignment.bottomCenter,
+            //   contentColor: Colors.red,
+            //   textStyle: TextStyle(color: Colors.white, fontSize: 16),
+            // );
           },
           onLongPress: () {
             Navigator.push(
