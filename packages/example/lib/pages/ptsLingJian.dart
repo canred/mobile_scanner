@@ -49,7 +49,9 @@ class _PtsLingJianState extends State<PtsLingJian> {
         'ack': 'enter',
         'is_send': 0,
       };
-      int correctIndex = box.values.toList().indexWhere((element) => element['id'] == item['id']);
+      int correctIndex = box.values
+          .toList()
+          .indexWhere((element) => element['id'] == item['id']);
       if (correctIndex == -1) {
         await box.put(barcode, item);
         setState(() {
@@ -65,7 +67,8 @@ class _PtsLingJianState extends State<PtsLingJian> {
 
     box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
 
-    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first['mqtt_server'];
+    dotenv.env['MQTT_SERVER_URL'] =
+        box_setting_mqtt.values.first['mqtt_server'];
     dotenv.env['MQTT_TOPIC'] = box_setting_mqtt.values.first['mqtt_topic'];
     deviceName = box_setting_mqtt.values.first['pc_name'];
   }
@@ -82,14 +85,15 @@ class _PtsLingJianState extends State<PtsLingJian> {
       child: SingleChildScrollView(
           child: Column(children: <Widget>[
         SizedBox(
-          height: 90,
+          height: 70,
         ),
         Center(
           child: Builder(
             builder: (context) {
               return ConnectButton(
                 mqtt_server_connect: () {
-                  connect_Server(dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
+                  connect_Server(dotenv.env['MQTT_SERVER_URL']!,
+                      dotenv.env['MQTT_TOPIC']!);
                 },
               );
             },
@@ -115,23 +119,31 @@ class _PtsLingJianState extends State<PtsLingJian> {
                         width: 80,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            side: BorderSide(color: Colors.blue, width: 1.0), // 設置邊框
+                            side: BorderSide(
+                                color: Colors.blue, width: 1.0), // 設置邊框
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(4.0), // 設置圓角
                             ),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8.0, vertical: 4.0), // 調整內邊距
+                            minimumSize: Size(40, 30),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(Icons.plus_one), // 相機圖標
-                              SizedBox(width: 8), // 圖標和文本之間的間距
+                              Icon(
+                                Icons.plus_one,
+                                size: 16,
+                              ), // 相機圖標
+                              SizedBox(width: 4), // 圖標和文本之間的間距
                             ],
                           ),
                           onPressed: () async {
                             var box = await Hive.openBox('lingJian');
                             var uuid = Uuid();
                             var now = DateTime.now();
-                            var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
+                            var formattedDate =
+                                DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
                             var item = {
                               'id': uuid.v4(),
                               'barcode': uuid.v4(),
@@ -148,15 +160,20 @@ class _PtsLingJianState extends State<PtsLingJian> {
                       SizedBox(width: 8),
                       ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          side: BorderSide(color: Colors.blue, width: 1.0), // 設置邊框
+                          side: BorderSide(
+                              color: Colors.blue, width: 1.0), // 設置邊框
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(4.0), // 設置圓角
                           ),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.0, vertical: 4.0), // 調整內邊距
+                          minimumSize: Size(40, 30),
                         ),
                         onPressed: () async {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => viewPageBarcode),
+                            MaterialPageRoute(
+                                builder: (context) => viewPageBarcode),
                           );
                         },
                         child: Row(
@@ -189,7 +206,8 @@ class _PtsLingJianState extends State<PtsLingJian> {
       setState(() {
         mqttIsOnline = true;
         cpConnectButton = ConnectButton(mqtt_server_connect: () {
-          connect_Server(dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
+          connect_Server(
+              dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
         });
         // 我要強制 ConnectButton 重新繪製
       });
@@ -226,7 +244,8 @@ class _PtsLingJianState extends State<PtsLingJian> {
         dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
       }
     }
-    clientServer = MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
+    clientServer =
+        MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
     clientServer.port = int.parse(dotenv.env['MQTT_PORT']!);
     clientServer.secure = false;
     clientServer.useWebSocket = true;
@@ -235,7 +254,8 @@ class _PtsLingJianState extends State<PtsLingJian> {
         .withWillTopic('willtopic')
         .withWillMessage('My Will message')
         .startClean()
-        .authenticateAs(dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
+        .authenticateAs(
+            dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
         .withWillQos(MqttQos.atLeastOnce);
     clientServer.keepAlivePeriod = 10;
     clientServer.connectionMessage = connMess;
@@ -247,13 +267,13 @@ class _PtsLingJianState extends State<PtsLingJian> {
   }
 
   void disconnect() {
-    try {
-      clientServer.disconnect();
-      setState(() {
-        mqttIsOnline = false;
-      });
-    } catch (e) {}
-    print('Disconnected');
+    // try {
+    //   clientServer.disconnect();
+    //   setState(() {
+    //     mqttIsOnline = false;
+    //   });
+    // } catch (e) {}
+    // print('Disconnected');
   }
 
   void onConnected() {
@@ -272,10 +292,10 @@ class _PtsLingJianState extends State<PtsLingJian> {
   }
 
   void onDisconnected() {
-    setState(() {
-      mqttIsOnline = false;
-    });
-    print('Disconnected');
+    // setState(() {
+    //   mqttIsOnline = false;
+    // });
+    // print('Disconnected');
   }
 
   void onSubscribed(String topic) {

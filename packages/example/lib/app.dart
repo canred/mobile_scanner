@@ -52,7 +52,8 @@ class _CupertinoStoreAppState extends State<CupertinoStoreApp> {
     dotenv.load(fileName: 'assets/.env');
     // This app is designed only to work vertically, so we limit
     // orientations to portrait up and down.
-    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
 
     return CupertinoApp(
       builder: (context, child) {
@@ -88,7 +89,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
     await Hive.initFlutter();
     box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
 
-    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first['mqtt_server'];
+    dotenv.env['MQTT_SERVER_URL'] =
+        box_setting_mqtt.values.first['mqtt_server'];
     dotenv.env['MQTT_TOPIC'] = box_setting_mqtt.values.first['mqtt_topic'];
     deviceName = box_setting_mqtt.values.first['pc_name'];
   }
@@ -97,7 +99,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
   Widget build(BuildContext context) {
     cpConnectButton = ConnectButton(mqtt_server_connect: () {
       //box_setting_mqtt = Hive.openBox('vis_scanner_setting');
-      connect_Server(box_setting_mqtt.values.first['mqtt_server']!, box_setting_mqtt.values.first['mqtt_topic']!);
+      connect_Server(box_setting_mqtt.values.first['mqtt_server']!,
+          box_setting_mqtt.values.first['mqtt_topic']!);
       deviceName = dotenv.env['MQTT_TOPIC']!;
     });
     viewPageQrcode = QrcodeScannerView(onJsonDecoded: (json) async {
@@ -128,29 +131,33 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
             //mainAxisAlignment: MainAxisAlignment.start,
             children: [
               // 插入一個空白的空間
-              SizedBox(height: 80),
+              SizedBox(height: 70),
               cpConnectButton,
               Row(
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: CupertinoButton(
                           padding: EdgeInsets.zero, // 移除內邊距
                           onPressed: () {
                             // 按鈕點擊事件處理邏輯
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => this._PtsLingJian));
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => this._PtsLingJian));
                           },
                           child: SizedBox(
-                            height: 200, // 設置高度
+                            height: 120, // 設置高度
                             child: Stack(
                               alignment: Alignment.bottomCenter,
                               children: [
                                 Positioned.fill(
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                    borderRadius:
+                                        BorderRadius.circular(8.0), // 設置圓角
                                     child: Image.asset(
                                       'assets/images/btn_01.jpg', // 替換為你的按鈕底圖路徑
                                       fit: BoxFit.cover,
@@ -163,7 +170,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                                   padding: EdgeInsets.all(8.0), // 添加一些內邊距
                                   child: Text(
                                     'PTS\n零件上機/下機',
-                                    style: TextStyle(color: CupertinoColors.black),
+                                    style:
+                                        TextStyle(color: CupertinoColors.black),
                                   ),
                                 ),
                               ],
@@ -175,7 +183,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                   ),
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Stack(
@@ -183,7 +191,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                           children: [
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                borderRadius:
+                                    BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
                                   'assets/images/btn_02.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
@@ -210,7 +219,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Stack(
@@ -218,7 +227,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                           children: [
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                borderRadius:
+                                    BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
                                   'assets/images/btn_03.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
@@ -241,7 +251,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                   ),
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Stack(
@@ -249,7 +259,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                           children: [
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                borderRadius:
+                                    BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
                                   'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
@@ -276,7 +287,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                 children: [
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Stack(
@@ -284,7 +295,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                           children: [
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                borderRadius:
+                                    BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
                                   'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
@@ -307,7 +319,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                   ),
                   Expanded(
                     child: SizedBox(
-                      height: 200,
+                      height: 120,
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Stack(
@@ -315,7 +327,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
                           children: [
                             Positioned.fill(
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8.0), // 設置圓角
+                                borderRadius:
+                                    BorderRadius.circular(8.0), // 設置圓角
                                 child: Image.asset(
                                   'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
                                   fit: BoxFit.cover,
@@ -365,7 +378,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
       setState(() {
         mqttIsOnline = true;
         cpConnectButton = ConnectButton(mqtt_server_connect: () {
-          connect_Server(dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
+          connect_Server(
+              dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
         });
         // 我要強制 ConnectButton 重新繪製
       });
@@ -378,7 +392,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
         content: Text("連接失敗，請檢查網路連線。1111"),
       ));
       BotToast.showText(
-        text: '連接失敗，請檢查網路連線。2222',
+        text: '連接失敗，請檢查網路連線。',
         duration: Duration(seconds: 3),
         align: Alignment.bottomCenter,
         contentColor: Colors.red,
@@ -402,7 +416,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
         dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
       }
     }
-    clientServer = MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
+    clientServer =
+        MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
     clientServer.port = int.parse(dotenv.env['MQTT_PORT']!);
     clientServer.secure = false;
     clientServer.useWebSocket = true;
@@ -411,7 +426,8 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
         .withWillTopic('willtopic')
         .withWillMessage('My Will message')
         .startClean()
-        .authenticateAs(dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
+        .authenticateAs(
+            dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
         .withWillQos(MqttQos.atLeastOnce);
     clientServer.keepAlivePeriod = 10;
     clientServer.connectionMessage = connMess;
@@ -423,19 +439,19 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
   }
 
   void disconnect() {
-    try {
-      clientBrowser.disconnect();
-      setState(() {
-        mqttIsOnline = false;
-      });
-    } catch (e) {}
-    try {
-      clientServer.disconnect();
-      setState(() {
-        mqttIsOnline = false;
-      });
-    } catch (e) {}
-    print('Disconnected');
+    // try {
+    //   clientBrowser.disconnect();
+    //   setState(() {
+    //     mqttIsOnline = false;
+    //   });
+    // } catch (e) {}
+    // try {
+    //   clientServer.disconnect();
+    //   setState(() {
+    //     mqttIsOnline = false;
+    //   });
+    // } catch (e) {}
+    // print('Disconnected');
   }
 
   void onConnected() {
@@ -444,7 +460,7 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
     });
 
     BotToast.showText(
-      text: '${json_qrcode['mqtt']} 連接成功',
+      text: '連接成功',
       duration: Duration(seconds: 3),
       align: Alignment.bottomCenter,
       contentColor: Colors.green,
@@ -454,10 +470,10 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
   }
 
   void onDisconnected() {
-    setState(() {
-      mqttIsOnline = false;
-    });
-    print('Disconnected');
+    // setState(() {
+    //   mqttIsOnline = false;
+    // });
+    // print('Disconnected');
   }
 
   void onSubscribed(String topic) {

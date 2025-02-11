@@ -34,7 +34,8 @@ class _ConnectButtonState extends State<ConnectButton> {
     await Hive.initFlutter();
     box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
 
-    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first["mqtt_server"];
+    dotenv.env['MQTT_SERVER_URL'] =
+        box_setting_mqtt.values.first["mqtt_server"];
     dotenv.env['MQTT_TOPIC'] = box_setting_mqtt[0]['mqtt_topic'];
     deviceName = box_setting_mqtt[0]['pc_name'];
   }
@@ -45,7 +46,7 @@ class _ConnectButtonState extends State<ConnectButton> {
     print('canred mqttIsOnline: $mqttIsOnline');
 
     return SizedBox(
-      height: 120, // 設置高度
+      height: 80, // 設置高度
       width: MediaQuery.of(context).size.width * 0.95, // 設置寬度
       child: Container(
         decoration: BoxDecoration(
@@ -73,7 +74,9 @@ class _ConnectButtonState extends State<ConnectButton> {
             );
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: mqttIsOnline ? const Color.fromARGB(255, 246, 247, 246).withOpacity(0.7) : const Color.fromARGB(255, 247, 8, 8).withOpacity(0.5),
+            backgroundColor: mqttIsOnline
+                ? const Color.fromARGB(255, 246, 247, 246).withOpacity(0.7)
+                : const Color.fromARGB(255, 247, 8, 8).withOpacity(0.5),
             shadowColor: Colors.transparent, // 設置陰影顏色
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8.0), // 設置按鈕圓角
@@ -95,7 +98,7 @@ class _ConnectButtonState extends State<ConnectButton> {
               Align(
                 alignment: Alignment.centerLeft, // 將文字置中對齊
                 child: Text(
-                  deviceName != '' ? deviceName : "---",
+                  deviceName,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,

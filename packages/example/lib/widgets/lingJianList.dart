@@ -38,7 +38,8 @@ class _LingJianListState extends State<LingJianList> {
     await Hive.initFlutter();
     box = await Hive.openBox('lingJian');
     box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
-    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt.values.first['mqtt_server'];
+    dotenv.env['MQTT_SERVER_URL'] =
+        box_setting_mqtt.values.first['mqtt_server'];
     dotenv.env['MQTT_TOPIC'] = box_setting_mqtt.values.first['mqtt_topic'];
     deviceName = box_setting_mqtt.values.first['pc_name'];
   }
@@ -57,43 +58,66 @@ class _LingJianListState extends State<LingJianList> {
                   for (var i = 0; i < box.length; i++) {
                     sortedItems.add(box.getAt(i));
                   }
-                  sortedItems.sort((a, b) => a['scan_dt'].compareTo(b['scan_dt']));
+                  sortedItems
+                      .sort((a, b) => a['scan_dt'].compareTo(b['scan_dt']));
                   return ListView.builder(
                     //shrinkWrap: true,
                     itemCount: sortedItems.length,
                     itemBuilder: (context, index) {
                       var item = sortedItems[index];
-                      var scanDt = DateFormat('yyyy/MM/dd HH:mm:ss').parse(item['scan_dt']);
+                      var scanDt = DateFormat('yyyy/MM/dd HH:mm:ss')
+                          .parse(item['scan_dt']);
                       var formattedTime = DateFormat('HH:mm:ss').format(scanDt);
                       return Column(
                         children: [
                           Divider(),
                           Row(children: [
-                            Text("  時間:" + formattedTime, style: TextStyle(fontSize: 14)),
+                            Text("  時間:" + formattedTime,
+                                style: TextStyle(fontSize: 14)),
                             SizedBox(width: 10),
                             item['is_send'] > 0
                                 ? Container(
                                     decoration: BoxDecoration(
                                       color: Colors.green, // 設置底色
-                                      border: Border.all(color: Colors.black, width: 0.0), // 設置邊框
-                                      borderRadius: BorderRadius.circular(4.0), // 設置圓角
+                                      border: Border.all(
+                                          color: Colors.black,
+                                          width: 0.0), // 設置邊框
+                                      borderRadius:
+                                          BorderRadius.circular(4.0), // 設置圓角
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0), // 設置內邊距
-                                    child: Text("已送出", style: TextStyle(fontSize: 14, color: Colors.white)),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4.0,
+                                        vertical: 2.0), // 設置內邊距
+                                    child: Text("已送出",
+                                        style: TextStyle(
+                                            fontSize: 14, color: Colors.white)),
                                   )
                                 : Container(
                                     decoration: BoxDecoration(
-                                      color: const Color.fromARGB(255, 218, 121, 114), // 設置底色
-                                      border: Border.all(color: Colors.green, width: 0), // 設置邊框
-                                      borderRadius: BorderRadius.circular(4.0), // 設置圓角
+                                      color: const Color.fromARGB(
+                                          255, 218, 121, 114), // 設置底色
+                                      border: Border.all(
+                                          color: Colors.green,
+                                          width: 0), // 設置邊框
+                                      borderRadius:
+                                          BorderRadius.circular(4.0), // 設置圓角
                                     ),
-                                    padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0), // 設置內邊距
-                                    child: Text("未送出", style: TextStyle(fontSize: 14, color: const Color.fromARGB(255, 0, 0, 0))),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 4.0,
+                                        vertical: 2.0), // 設置內邊距
+                                    child: Text("未送出",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            color: const Color.fromARGB(
+                                                255, 0, 0, 0))),
                                   ),
                             Expanded(child: Container()),
                             IconButton(
                                 onPressed: () {
-                                  int correctIndex = box.values.toList().indexWhere((element) => element['id'] == item['id']);
+                                  int correctIndex = box.values
+                                      .toList()
+                                      .indexWhere((element) =>
+                                          element['id'] == item['id']);
                                   if (correctIndex != -1) {
                                     Hive.box('LingJian').deleteAt(correctIndex);
                                   } else {
@@ -103,15 +127,25 @@ class _LingJianListState extends State<LingJianList> {
                                 icon: Icon(Icons.delete, color: Colors.red)),
                             IconButton(
                                 onPressed: () async {
-                                  publishMessage_server("barcode/" + box_setting_mqtt.values.first['mqtt_topic']!, """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
+                                  publishMessage_server(
+                                      "barcode/" +
+                                          box_setting_mqtt
+                                              .values.first['mqtt_topic']!,
+                                      """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
 
-                                  int correctIndex = box.values.toList().indexWhere((element) => element['id'] == item['id']);
+                                  int correctIndex = box.values
+                                      .toList()
+                                      .indexWhere((element) =>
+                                          element['id'] == item['id']);
                                   if (correctIndex != -1) {
-                                    var obj_item = Hive.box('lingJian').getAt(correctIndex);
+                                    var obj_item = Hive.box('lingJian')
+                                        .getAt(correctIndex);
                                     Hive.box('lingJian').deleteAt(correctIndex);
                                     obj_item['is_send'] = 1;
-                                    Hive.box('lingJian').put(obj_item['id'], obj_item);
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    Hive.box('lingJian')
+                                        .put(obj_item['id'], obj_item);
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
                                       content: Text('已送出'),
                                       duration: Duration(seconds: 1),
                                     ));
@@ -123,7 +157,8 @@ class _LingJianListState extends State<LingJianList> {
                           ]),
                           Row(
                             children: [
-                              Text("  條碼:" + item['barcode'], style: TextStyle(fontSize: 12)),
+                              Text("  條碼:" + item['barcode'],
+                                  style: TextStyle(fontSize: 12)),
                             ],
                           )
                         ],
@@ -148,7 +183,8 @@ class _LingJianListState extends State<LingJianList> {
                     style: TextStyle(fontSize: 24, color: Colors.grey),
                   ),
                   SizedBox(height: 10),
-                  Text('請掃描條碼加入資料', style: TextStyle(fontSize: 16, color: Colors.grey)),
+                  Text('請掃描條碼加入資料',
+                      style: TextStyle(fontSize: 16, color: Colors.grey)),
                 ],
               ),
             ),
@@ -163,7 +199,8 @@ class _LingJianListState extends State<LingJianList> {
         dotenv.env['MQTT_SERVER_URL'] = "ws://" + qrCode_mqtt_serverip;
       }
     }
-    clientServer = MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
+    clientServer =
+        MqttServerClient(dotenv.env['MQTT_SERVER_URL']!, 'flutter_client');
     clientServer.port = int.parse(dotenv.env['MQTT_PORT']!);
     clientServer.secure = false;
     clientServer.useWebSocket = true;
@@ -172,7 +209,8 @@ class _LingJianListState extends State<LingJianList> {
         .withWillTopic('willtopic')
         .withWillMessage('My Will message')
         .startClean()
-        .authenticateAs(dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
+        .authenticateAs(
+            dotenv.env['MQTT_USERNAME']!, dotenv.env['MQTT_PASSWORD']!)
         .withWillQos(MqttQos.atLeastOnce);
     clientServer.keepAlivePeriod = 10;
     clientServer.connectionMessage = connMess;
@@ -184,7 +222,8 @@ class _LingJianListState extends State<LingJianList> {
   }
 
   Future<void> connect_Server() async {
-    setupMqttClient_Server(box_setting_mqtt.values.first['mqtt_server']!, box_setting_mqtt.values.first['mqtt_topic']!);
+    setupMqttClient_Server(box_setting_mqtt.values.first['mqtt_server']!,
+        box_setting_mqtt.values.first['mqtt_topic']!);
     try {
       await clientServer.connect();
       setState(() {
@@ -236,12 +275,12 @@ class _LingJianListState extends State<LingJianList> {
   }
 
   void disconnect() {
-    try {
-      clientServer.disconnect();
-      setState(() {
-        mqttIsOnline = false;
-      });
-    } catch (e) {}
+    // try {
+    //   clientServer.disconnect();
+    //   setState(() {
+    //     mqttIsOnline = false;
+    //   });
+    // } catch (e) {}
     print('Disconnected');
   }
 
@@ -253,9 +292,9 @@ class _LingJianListState extends State<LingJianList> {
   }
 
   void onDisconnected() {
-    setState(() {
-      mqttIsOnline = false;
-    });
+    // setState(() {
+    //   mqttIsOnline = false;
+    // });
     print('Disconnected');
   }
 
