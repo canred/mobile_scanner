@@ -144,11 +144,11 @@ class _LingJianListState extends State<LingJianList> {
                                     obj_item['is_send'] = 1;
                                     Hive.box('lingJian')
                                         .put(obj_item['id'], obj_item);
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text('已送出'),
-                                      duration: Duration(seconds: 1),
-                                    ));
+                                    // ScaffoldMessenger.of(context)
+                                    //     .showSnackBar(SnackBar(
+                                    //   content: Text('已送出'),
+                                    //   duration: Duration(seconds: 1),
+                                    // ));
                                   } else {
                                     print('item not found');
                                   }

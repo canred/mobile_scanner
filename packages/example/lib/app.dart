@@ -39,12 +39,23 @@ class _CupertinoStoreAppState extends State<CupertinoStoreApp> {
   }
 
   Future<void> initHive() async {
-    await Hive.initFlutter();
-    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+    try {
+      await Hive.initFlutter();
+      box_setting_mqtt = await Hive.openBox<Map>('vis_scanner_setting');
 
-    dotenv.env['MQTT_SERVER_URL'] = box_setting_mqtt[0]['mqtt_server'];
-    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt[0]['mqtt_topic'];
-    deviceName = box_setting_mqtt[0]['pc_name'];
+      if (box_setting_mqtt.isNotEmpty) {
+        var firstEntry = box_setting_mqtt.getAt(0);
+        dotenv.env['MQTT_SERVER_URL'] = firstEntry['mqtt_server'];
+        dotenv.env['MQTT_TOPIC'] = firstEntry['mqtt_topic'];
+        deviceName = firstEntry['pc_name'];
+      } else {
+        // 處理空的情況
+        print('Box is empty');
+      }
+    } catch (e) {
+      // 處理錯誤
+      print('Error initializing Hive: $e');
+    }
   }
 
   @override
@@ -116,7 +127,27 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
         'pc_name': dotenv.env['MQTT_TOPIC'],
       };
       await box_setting.put('mqtt_setting', item_setting);
+      if (json_qrcode['mqtt'] == '' || json_qrcode['topic'] == '') {
+        BotToast.showText(
+          text: '請先掃描 QR Code',
+          duration: Duration(seconds: 3),
+          align: Alignment.bottomCenter,
+          contentColor: Colors.red,
+          textStyle: TextStyle(color: Colors.white, fontSize: 16),
+        );
+        return;
+      }
 
+      if (json_qrcode['mqtt'] == '' || json_qrcode['topic'] == '') {
+        BotToast.showText(
+          text: '請先掃描 QR Code',
+          duration: Duration(seconds: 3),
+          align: Alignment.bottomCenter,
+          contentColor: Colors.red,
+          textStyle: TextStyle(color: Colors.white, fontSize: 16),
+        );
+        return;
+      }
       connect_Server(json_qrcode['mqtt'], json_qrcode['topic']);
     });
 
@@ -370,6 +401,16 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
   Future<void> connect_Server(String mqtt_ip, String topic) async {
     print('canred-mqtt-01');
+    if (mqtt_ip == '' || topic == '') {
+      BotToast.showText(
+        text: '請先掃描 QR Code',
+        duration: Duration(seconds: 3),
+        align: Alignment.bottomCenter,
+        contentColor: Colors.red,
+        textStyle: TextStyle(color: Colors.white, fontSize: 16),
+      );
+      return;
+    }
     setupMqttClient_Server(mqtt_ip, topic);
     print('canred-mqtt-02');
     try {

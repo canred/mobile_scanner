@@ -39,7 +39,6 @@ class _PtsLingJianState extends State<PtsLingJian> {
     await Hive.initFlutter();
     box = await Hive.openBox('lingJian');
     viewPageBarcode = BarcodeScannerView(onScanAfter: (barcode) async {
-      //var box = await Hive.openBox('lingJian');
       var now = DateTime.now();
       var formattedDate = DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
       var item = {
@@ -60,9 +59,6 @@ class _PtsLingJianState extends State<PtsLingJian> {
       } else {
         print('資料已經存在了');
       }
-
-      //print('item: $item');
-      //setState(() {});
     });
 
     box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
@@ -76,123 +72,143 @@ class _PtsLingJianState extends State<PtsLingJian> {
   @override
   Widget build(BuildContext context) {
     dotenv.load(fileName: 'assets/.env');
-    //box = Hive.openBox('lingJian');
 
-    return CupertinoPageScaffold(
-      navigationBar: CupertinoNavigationBar(
-        middle: Text('PTS-零件上機/下機'),
-      ),
-      child: SingleChildScrollView(
-          child: Column(children: <Widget>[
-        SizedBox(
-          height: 70,
+    return ScaffoldMessenger(
+      child: CupertinoPageScaffold(
+        navigationBar: CupertinoNavigationBar(
+          middle: Text('PTS-零件上機/下機'),
         ),
-        Center(
-          child: Builder(
-            builder: (context) {
-              return ConnectButton(
-                mqtt_server_connect: () {
-                  connect_Server(dotenv.env['MQTT_SERVER_URL']!,
-                      dotenv.env['MQTT_TOPIC']!);
-                },
-              );
-            },
-          ),
-        ),
-        Stack(
-          children: <Widget>[
-            Transform.translate(
-              offset: Offset(0, -20),
-              child: LingJianList(),
-            ),
-            Row(
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                    color: Colors.white, // 設置底色
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 8),
-                      SizedBox(
-                        width: 80,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            side: BorderSide(
-                                color: Colors.blue, width: 1.0), // 設置邊框
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.0), // 設置圓角
-                            ),
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 8.0, vertical: 4.0), // 調整內邊距
-                            minimumSize: Size(40, 30),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.plus_one,
-                                size: 16,
-                              ), // 相機圖標
-                              SizedBox(width: 4), // 圖標和文本之間的間距
-                            ],
-                          ),
-                          onPressed: () async {
-                            var box = await Hive.openBox('lingJian');
-                            var uuid = Uuid();
-                            var now = DateTime.now();
-                            var formattedDate =
-                                DateFormat('yyyy/MM/dd HH:mm:ss').format(now);
-                            var item = {
-                              'id': uuid.v4(),
-                              'barcode': uuid.v4(),
-                              'scan_dt': formattedDate,
-                              'ack': 'enter',
-                              'is_send': 0,
-                            };
-                            await box.put(item['id'], item);
-                            print('item: $item');
-                            setState(() {});
-                          },
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          side: BorderSide(
-                              color: Colors.blue, width: 1.0), // 設置邊框
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4.0), // 設置圓角
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0), // 調整內邊距
-                          minimumSize: Size(40, 30),
-                        ),
-                        onPressed: () async {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => viewPageBarcode),
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              SizedBox(height: 70),
+              Center(
+                child: Builder(
+                  builder: (context) {
+                    return ConnectButton(
+                      mqtt_server_connect: () {
+                        if (dotenv.env['MQTT_SERVER_URL'] == '' ||
+                            dotenv.env['MQTT_TOPIC'] == '') {
+                          BotToast.showText(
+                            text: '請先掃描 QR Code',
+                            duration: Duration(seconds: 3),
+                            align: Alignment.bottomCenter,
+                            contentColor: Colors.red,
+                            textStyle:
+                                TextStyle(color: Colors.white, fontSize: 16),
                           );
-                        },
+                          return;
+                        }
+                        connect_Server(dotenv.env['MQTT_SERVER_URL']!,
+                            dotenv.env['MQTT_TOPIC']!);
+                      },
+                    );
+                  },
+                ),
+              ),
+              Stack(
+                children: <Widget>[
+                  Transform.translate(
+                    offset: Offset(0, -20),
+                    child: LingJianList(),
+                  ),
+                  Row(
+                    children: [
+                      Container(
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(
+                          color: Colors.white, // 設置底色
+                        ),
                         child: Row(
-                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.camera_alt), // 相機圖標
-                            SizedBox(width: 8), // 圖標和文本之間的間距
-                            Text('掃描'),
+                            SizedBox(width: 8),
+                            SizedBox(
+                              width: 120,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blue, width: 1.0), // 設置邊框
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(4.0), // 設置圓角
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0), // 調整內邊距
+                                  minimumSize: Size(40, 30),
+                                ),
+                                onPressed: () async {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => viewPageBarcode),
+                                  );
+                                },
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.camera_alt), // 相機圖標
+                                    SizedBox(width: 8), // 圖標和文本之間的間距
+                                    Text('掃描'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 8),
+                            SizedBox(
+                              width: 40,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  side: BorderSide(
+                                      color: Colors.blue, width: 1.0), // 設置邊框
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(4.0), // 設置圓角
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8.0, vertical: 4.0), // 調整內邊距
+                                  minimumSize: Size(40, 30),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.plus_one,
+                                      size: 16,
+                                    ), // 相機圖標
+                                    SizedBox(width: 4), // 圖標和文本之間的間距
+                                  ],
+                                ),
+                                onPressed: () async {
+                                  var box = await Hive.openBox('lingJian');
+                                  var uuid = Uuid();
+                                  var now = DateTime.now();
+                                  var formattedDate =
+                                      DateFormat('yyyy/MM/dd HH:mm:ss')
+                                          .format(now);
+                                  var item = {
+                                    'id': uuid.v4(),
+                                    'barcode': uuid.v4(),
+                                    'scan_dt': formattedDate,
+                                    'ack': 'enter',
+                                    'is_send': 0,
+                                  };
+                                  await box.put(item['id'], item);
+                                  print('item: $item');
+                                  setState(() {});
+                                },
+                              ),
+                            ),
                           ],
                         ),
-                      ),
+                      )
                     ],
                   ),
-                )
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
-      ])),
+      ),
     );
   }
 
@@ -206,6 +222,17 @@ class _PtsLingJianState extends State<PtsLingJian> {
       setState(() {
         mqttIsOnline = true;
         cpConnectButton = ConnectButton(mqtt_server_connect: () {
+          if (dotenv.env['MQTT_SERVER_URL']! == '' ||
+              dotenv.env['MQTT_TOPIC']! == '') {
+            BotToast.showText(
+              text: '請先掃描 QR Code',
+              duration: Duration(seconds: 3),
+              align: Alignment.bottomCenter,
+              contentColor: Colors.red,
+              textStyle: TextStyle(color: Colors.white, fontSize: 16),
+            );
+            return;
+          }
           connect_Server(
               dotenv.env['MQTT_SERVER_URL']!, dotenv.env['MQTT_TOPIC']!);
         });
@@ -215,18 +242,17 @@ class _PtsLingJianState extends State<PtsLingJian> {
       print('NoConnectionException:$e');
       clientServer.disconnect();
     } on SocketException catch (e) {
-      //print('SocketException:$e');
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("連接失敗，請檢查網路連線。1111"),
-      ));
-      BotToast.showText(
-        text: '連接失敗，請檢查網路連線。2222',
-        duration: Duration(seconds: 3),
-        align: Alignment.bottomCenter,
-        contentColor: Colors.red,
-        textStyle: TextStyle(color: Colors.white, fontSize: 16),
-      );
-      //clientServer.disconnect();
+      //print('NoConnectionException:$e');
+      // ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+      //   content: Text("連接失敗，請檢查網路連線。1111"),
+      // ));
+      // BotToast.showText(
+      //   text: '連接失敗，請檢查網路連線。2222',
+      //   duration: Duration(seconds: 3),
+      //   align: Alignment.bottomCenter,
+      //   contentColor: Colors.red,
+      //   textStyle: TextStyle(color: Colors.white, fontSize: 16),
+      // );
     } on Exception catch (e) {
       print('Exception:$e');
       clientServer.disconnect();

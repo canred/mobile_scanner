@@ -31,13 +31,23 @@ class _ConnectButtonState extends State<ConnectButton> {
   }
 
   Future<void> initHive() async {
-    await Hive.initFlutter();
-    box_setting_mqtt = await Hive.openBox('vis_scanner_setting');
+    try {
+      await Hive.initFlutter();
+      var box = await Hive.openBox<Map>('vis_scanner_setting');
 
-    dotenv.env['MQTT_SERVER_URL'] =
-        box_setting_mqtt.values.first["mqtt_server"];
-    dotenv.env['MQTT_TOPIC'] = box_setting_mqtt[0]['mqtt_topic'];
-    deviceName = box_setting_mqtt[0]['pc_name'];
+      if (box.isNotEmpty) {
+        final firstEntry = box.values.first;
+        dotenv.env['MQTT_SERVER_URL'] = firstEntry['mqtt_server'];
+        dotenv.env['MQTT_TOPIC'] = firstEntry['mqtt_topic'];
+        deviceName = firstEntry['pc_name'];
+      } else {
+        // 處理空的情況
+        print('Box is empty');
+      }
+    } catch (e) {
+      // 處理錯誤
+      print('Error initializing Hive: $e');
+    }
   }
 
   @override
@@ -46,7 +56,7 @@ class _ConnectButtonState extends State<ConnectButton> {
     print('canred mqttIsOnline: $mqttIsOnline');
 
     return SizedBox(
-      height: 80, // 設置高度
+      height: 100, // 設置高度
       width: MediaQuery.of(context).size.width * 0.95, // 設置寬度
       child: Container(
         decoration: BoxDecoration(
