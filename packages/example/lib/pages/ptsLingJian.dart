@@ -76,12 +76,17 @@ class _PtsLingJianState extends State<PtsLingJian> {
     return ScaffoldMessenger(
       child: CupertinoPageScaffold(
         navigationBar: CupertinoNavigationBar(
-          middle: Text('PTS-零件上機/下機'),
+          middle: Text('PTS-零件上機/下機', style: TextStyle(color: Colors.black)),
         ),
+        backgroundColor: Colors.white,
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              SizedBox(height: 70),
+              SizedBox(height: 58),
+              Divider(
+                color: CupertinoColors.systemGrey, // 設置水平線顏色
+                thickness: 1.0, // 設置水平線厚度
+              ),
               Center(
                 child: Builder(
                   builder: (context) {

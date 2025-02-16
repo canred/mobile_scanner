@@ -55,9 +55,11 @@ class _ConnectButtonState extends State<ConnectButton> {
     dotenv.load(fileName: 'assets/.env');
     print('canred mqttIsOnline: $mqttIsOnline');
 
+    bool isIpad = MediaQuery.of(context).size.shortestSide >= 600;
+
     return SizedBox(
-      height: 100, // 設置高度
-      width: MediaQuery.of(context).size.width * 0.95, // 設置寬度
+      height: isIpad ? 200 : 100, // 設置高度
+      width: MediaQuery.of(context).size.width * 0.99, // 設置寬度
       child: Container(
         decoration: BoxDecoration(
           image: DecorationImage(

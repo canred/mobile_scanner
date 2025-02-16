@@ -108,8 +108,9 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isIpad = MediaQuery.of(context).size.shortestSide >= 600;
+
     cpConnectButton = ConnectButton(mqtt_server_connect: () {
-      //box_setting_mqtt = Hive.openBox('vis_scanner_setting');
       connect_Server(box_setting_mqtt.values.first['mqtt_server']!,
           box_setting_mqtt.values.first['mqtt_topic']!);
       deviceName = dotenv.env['MQTT_TOPIC']!;
@@ -152,251 +153,283 @@ class _CupertinoStoreHomePageState extends State<CupertinoStoreHomePage> {
     });
 
     return CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text('VIS Scanner'),
-          leading: Icon(CupertinoIcons.bars), // 加上系統設定的 ICON
+      navigationBar: CupertinoNavigationBar(
+        padding: EdgeInsetsDirectional.zero,
+
+        middle: Text(
+          'VIS Scanner',
+          style: TextStyle(color: Colors.black),
         ),
-        child: SingleChildScrollView(
-          //scrollDirection: Axis.vertical,
-          child: Column(
-            //mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              // 插入一個空白的空間
-              SizedBox(height: 70),
-              cpConnectButton,
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CupertinoButton(
-                          padding: EdgeInsets.zero, // 移除內邊距
-                          onPressed: () {
-                            // 按鈕點擊事件處理邏輯
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => this._PtsLingJian));
-                          },
-                          child: SizedBox(
-                            height: 120, // 設置高度
-                            child: Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Positioned.fill(
-                                  child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(8.0), // 設置圓角
-                                    child: Image.asset(
-                                      'assets/images/btn_01.jpg', // 替換為你的按鈕底圖路徑
-                                      fit: BoxFit.cover,
+        leading: Icon(CupertinoIcons.bars), // 加上系統設定的 ICON
+        // backgroundColor: CupertinoColors.activeBlue,
+        border: Border(
+          bottom: BorderSide(
+            color: CupertinoColors.systemGrey, // 設置邊框顏色為灰色
+            width: 2.0, // 設置邊框寬度
+          ),
+        ),
+
+        //backgroundColor: CupertinoColors.systemRed,
+      ),
+      backgroundColor: CupertinoColors.white,
+      child: Stack(
+        children: [
+          SingleChildScrollView(
+            //scrollDirection: Axis.vertical,
+            child: Column(
+              //mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                // 插入一個空白的空間
+                SizedBox(height: 58),
+                Divider(
+                  color: CupertinoColors.systemGrey, // 設置水平線顏色
+                  thickness: 1.0, // 設置水平線厚度
+                ),
+                cpConnectButton,
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CupertinoButton(
+                            padding: EdgeInsets.zero, // 移除內邊距
+                            onPressed: () {
+                              // 按鈕點擊事件處理邏輯
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => this._PtsLingJian));
+                            },
+                            child: SizedBox(
+                              height: isIpad ? 200 : 120, // 設置高度
+                              child: Stack(
+                                alignment: Alignment.bottomCenter,
+                                children: [
+                                  Positioned.fill(
+                                    child: ClipRRect(
+                                      borderRadius:
+                                          BorderRadius.circular(8.0), // 設置圓角
+                                      child: Image.asset(
+                                        'assets/images/btn_01.jpg', // 替換為你的按鈕底圖路徑
+                                        fit: BoxFit.cover,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  color: CupertinoColors.white.withOpacity(0.7),
-                                  width: double.infinity,
-                                  padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                                  child: Text(
-                                    'PTS\n零件上機/下機',
-                                    style:
-                                        TextStyle(color: CupertinoColors.black),
+                                  Container(
+                                    color:
+                                        CupertinoColors.white.withOpacity(0.7),
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                    child: Text(
+                                      'PTS\n零件上機/下機',
+                                      style: TextStyle(
+                                          color: CupertinoColors.black),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // 設置圓角
-                                child: Image.asset(
-                                  'assets/images/btn_02.jpg', // 替換為你的按鈕底圖路徑
-                                  fit: BoxFit.cover,
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(8.0), // 設置圓角
+                                  child: Image.asset(
+                                    'assets/images/btn_02.jpg', // 替換為你的按鈕底圖路徑
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              color: CupertinoColors.white.withOpacity(0.7),
-                              width: double.infinity,
-                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                              child: Text(
-                                'Excel\n掃描到Excel',
-                                style: TextStyle(color: CupertinoColors.black),
+                              Container(
+                                color: CupertinoColors.white.withOpacity(0.7),
+                                width: double.infinity,
+                                padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                child: Text(
+                                  'Excel\n掃描到Excel',
+                                  style:
+                                      TextStyle(color: CupertinoColors.black),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // 設置圓角
-                                child: Image.asset(
-                                  'assets/images/btn_03.jpg', // 替換為你的按鈕底圖路徑
-                                  fit: BoxFit.cover,
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(8.0), // 設置圓角
+                                  child: Image.asset(
+                                    'assets/images/btn_03.jpg', // 替換為你的按鈕底圖路徑
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              color: CupertinoColors.white.withOpacity(0.7),
-                              width: double.infinity,
-                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                              child: Text(
-                                'PTS\n出貨QC檢查',
-                                style: TextStyle(color: CupertinoColors.black),
+                              Container(
+                                color: CupertinoColors.white.withOpacity(0.7),
+                                width: double.infinity,
+                                padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                child: Text(
+                                  'PTS\n出貨QC檢查',
+                                  style:
+                                      TextStyle(color: CupertinoColors.black),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // 設置圓角
-                                child: Image.asset(
-                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                                  fit: BoxFit.cover,
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(8.0), // 設置圓角
+                                  child: Image.asset(
+                                    'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              color: CupertinoColors.white.withOpacity(0.7),
-                              width: double.infinity,
-                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                              child: Text(
-                                '\n施工中',
-                                style: TextStyle(color: CupertinoColors.black),
+                              Container(
+                                color: CupertinoColors.white.withOpacity(0.7),
+                                width: double.infinity,
+                                padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                child: Text(
+                                  '\n施工中',
+                                  style:
+                                      TextStyle(color: CupertinoColors.black),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // 設置圓角
-                                child: Image.asset(
-                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                                  fit: BoxFit.cover,
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(8.0), // 設置圓角
+                                  child: Image.asset(
+                                    'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              color: CupertinoColors.white.withOpacity(0.7),
-                              width: double.infinity,
-                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                              child: Text(
-                                '\n施工中',
-                                style: TextStyle(color: CupertinoColors.black),
+                              Container(
+                                color: CupertinoColors.white.withOpacity(0.7),
+                                width: double.infinity,
+                                padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                child: Text(
+                                  '\n施工中',
+                                  style:
+                                      TextStyle(color: CupertinoColors.black),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 120,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Stack(
-                          alignment: Alignment.bottomCenter,
-                          children: [
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius:
-                                    BorderRadius.circular(8.0), // 設置圓角
-                                child: Image.asset(
-                                  'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
-                                  fit: BoxFit.cover,
+                    Expanded(
+                      child: SizedBox(
+                        height: isIpad ? 200 : 120,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Positioned.fill(
+                                child: ClipRRect(
+                                  borderRadius:
+                                      BorderRadius.circular(8.0), // 設置圓角
+                                  child: Image.asset(
+                                    'assets/images/btn_busy.jpg', // 替換為你的按鈕底圖路徑
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
                               ),
-                            ),
-                            Container(
-                              color: CupertinoColors.white.withOpacity(0.7),
-                              width: double.infinity,
-                              padding: EdgeInsets.all(8.0), // 添加一些內邊距
-                              child: Text(
-                                '\n施工中',
-                                style: TextStyle(color: CupertinoColors.black),
+                              Container(
+                                color: CupertinoColors.white.withOpacity(0.7),
+                                width: double.infinity,
+                                padding: EdgeInsets.all(8.0), // 添加一些內邊距
+                                child: Text(
+                                  '\n施工中',
+                                  style:
+                                      TextStyle(color: CupertinoColors.black),
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              //Spacer(height: 1), // 添加這行以確保有適當的大小
-              SizedBox(height: 1), // 添加這行以確保有適當的大小
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  '© 2025 世界先進. All rights reserved.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: CupertinoColors.systemGrey,
-                  ),
+                  ],
+                ),
+                SizedBox(height: 1), // 添加這行以確保有適當的大小
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                '© 2025 世界先進. All rights reserved.',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: CupertinoColors.systemGrey,
                 ),
               ),
-            ],
+            ),
           ),
-        ));
+        ],
+      ),
+    );
   }
 
   Future<void> connect_Server(String mqtt_ip, String topic) async {

@@ -68,100 +68,108 @@ class _LingJianListState extends State<LingJianList> {
                       var scanDt = DateFormat('yyyy/MM/dd HH:mm:ss')
                           .parse(item['scan_dt']);
                       var formattedTime = DateFormat('HH:mm:ss').format(scanDt);
-                      return Column(
-                        children: [
-                          Divider(),
-                          Row(children: [
-                            Text("  時間:" + formattedTime,
-                                style: TextStyle(fontSize: 14)),
-                            SizedBox(width: 10),
-                            item['is_send'] > 0
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.green, // 設置底色
-                                      border: Border.all(
-                                          color: Colors.black,
-                                          width: 0.0), // 設置邊框
-                                      borderRadius:
-                                          BorderRadius.circular(4.0), // 設置圓角
+                      return Container(
+                        color: const Color.fromARGB(40, 190, 187, 187), // 設置底色
+                        child: Column(
+                          children: [
+                            Divider(),
+                            Row(children: [
+                              Text("  時間:" + formattedTime,
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.black)),
+                              SizedBox(width: 10),
+                              item['is_send'] > 0
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        color: Colors.green, // 設置底色
+                                        border: Border.all(
+                                            color: Colors.black,
+                                            width: 0.0), // 設置邊框
+                                        borderRadius:
+                                            BorderRadius.circular(4.0), // 設置圓角
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 4.0,
+                                          vertical: 2.0), // 設置內邊距
+                                      child: Text("已送出",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.white)),
+                                    )
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                        color: const Color.fromARGB(
+                                            255, 218, 121, 114), // 設置底色
+                                        border: Border.all(
+                                            color: Colors.green,
+                                            width: 0), // 設置邊框
+                                        borderRadius:
+                                            BorderRadius.circular(4.0), // 設置圓角
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 4.0,
+                                          vertical: 2.0), // 設置內邊距
+                                      child: Text("未送出",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: const Color.fromARGB(
+                                                  255, 0, 0, 0))),
                                     ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 4.0,
-                                        vertical: 2.0), // 設置內邊距
-                                    child: Text("已送出",
-                                        style: TextStyle(
-                                            fontSize: 14, color: Colors.white)),
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromARGB(
-                                          255, 218, 121, 114), // 設置底色
-                                      border: Border.all(
-                                          color: Colors.green,
-                                          width: 0), // 設置邊框
-                                      borderRadius:
-                                          BorderRadius.circular(4.0), // 設置圓角
-                                    ),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 4.0,
-                                        vertical: 2.0), // 設置內邊距
-                                    child: Text("未送出",
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            color: const Color.fromARGB(
-                                                255, 0, 0, 0))),
-                                  ),
-                            Expanded(child: Container()),
-                            IconButton(
-                                onPressed: () {
-                                  int correctIndex = box.values
-                                      .toList()
-                                      .indexWhere((element) =>
-                                          element['id'] == item['id']);
-                                  if (correctIndex != -1) {
-                                    Hive.box('LingJian').deleteAt(correctIndex);
-                                  } else {
-                                    print('item not found');
-                                  }
-                                },
-                                icon: Icon(Icons.delete, color: Colors.red)),
-                            IconButton(
-                                onPressed: () async {
-                                  publishMessage_server(
-                                      "barcode/" +
-                                          box_setting_mqtt
-                                              .values.first['mqtt_topic']!,
-                                      """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
+                              Expanded(child: Container()),
+                              IconButton(
+                                  onPressed: () {
+                                    int correctIndex = box.values
+                                        .toList()
+                                        .indexWhere((element) =>
+                                            element['id'] == item['id']);
+                                    if (correctIndex != -1) {
+                                      Hive.box('LingJian')
+                                          .deleteAt(correctIndex);
+                                    } else {
+                                      print('item not found');
+                                    }
+                                  },
+                                  icon: Icon(Icons.delete, color: Colors.red)),
+                              IconButton(
+                                  onPressed: () async {
+                                    publishMessage_server(
+                                        "barcode/" +
+                                            box_setting_mqtt
+                                                .values.first['mqtt_topic']!,
+                                        """{"sendkey":"${item['barcode']}","ack":"${item['ack']}"}""");
 
-                                  int correctIndex = box.values
-                                      .toList()
-                                      .indexWhere((element) =>
-                                          element['id'] == item['id']);
-                                  if (correctIndex != -1) {
-                                    var obj_item = Hive.box('lingJian')
-                                        .getAt(correctIndex);
-                                    Hive.box('lingJian').deleteAt(correctIndex);
-                                    obj_item['is_send'] = 1;
-                                    Hive.box('lingJian')
-                                        .put(obj_item['id'], obj_item);
-                                    // ScaffoldMessenger.of(context)
-                                    //     .showSnackBar(SnackBar(
-                                    //   content: Text('已送出'),
-                                    //   duration: Duration(seconds: 1),
-                                    // ));
-                                  } else {
-                                    print('item not found');
-                                  }
-                                },
-                                icon: Icon(Icons.send))
-                          ]),
-                          Row(
-                            children: [
-                              Text("  條碼:" + item['barcode'],
-                                  style: TextStyle(fontSize: 12)),
-                            ],
-                          )
-                        ],
+                                    int correctIndex = box.values
+                                        .toList()
+                                        .indexWhere((element) =>
+                                            element['id'] == item['id']);
+                                    if (correctIndex != -1) {
+                                      var obj_item = Hive.box('lingJian')
+                                          .getAt(correctIndex);
+                                      Hive.box('lingJian')
+                                          .deleteAt(correctIndex);
+                                      obj_item['is_send'] = 1;
+                                      Hive.box('lingJian')
+                                          .put(obj_item['id'], obj_item);
+                                      // ScaffoldMessenger.of(context)
+                                      //     .showSnackBar(SnackBar(
+                                      //   content: Text('已送出'),
+                                      //   duration: Duration(seconds: 1),
+                                      // ));
+                                    } else {
+                                      print('item not found');
+                                    }
+                                  },
+                                  icon: Icon(Icons.send))
+                            ]),
+                            Row(
+                              children: [
+                                Text("  條碼:" + item['barcode'],
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.black)),
+                              ],
+                            )
+                          ],
+                        ),
                       );
                     },
                   );
