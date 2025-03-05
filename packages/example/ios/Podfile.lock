@@ -21,18 +21,6 @@ PODS:
     - MLKitBarcodeScanning (~> 6.0.0)
   - GoogleMLKit/MLKitCore (7.0.0):
     - MLKitCommon (~> 12.0.0)
-  - GoogleMLKit/TextRecognitionChinese (7.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitTextRecognitionChinese (~> 4.0.0)
-  - GoogleMLKit/TextRecognitionDevanagari (7.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitTextRecognitionDevanagari (~> 4.0.0)
-  - GoogleMLKit/TextRecognitionJapanese (7.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitTextRecognitionJapanese (~> 4.0.0)
-  - GoogleMLKit/TextRecognitionKorean (7.0.0):
-    - GoogleMLKit/MLKitCore
-    - MLKitTextRecognitionKorean (~> 4.0.0)
   - GoogleToolboxForMac/Defines (4.2.1)
   - GoogleToolboxForMac/Logger (4.2.1):
     - GoogleToolboxForMac/Defines (= 4.2.1)
@@ -61,25 +49,6 @@ PODS:
     - GoogleUtilities/Logger (~> 8.0)
     - GoogleUtilities/UserDefaults (~> 8.0)
     - GTMSessionFetcher/Core (< 4.0, >= 3.3.2)
-  - MLKitTextRecognitionChinese (4.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitTextRecognitionCommon (= 4.0.0)
-    - MLKitVision (~> 8.0)
-  - MLKitTextRecognitionCommon (4.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitVision (~> 8.0)
-  - MLKitTextRecognitionDevanagari (4.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitTextRecognitionCommon (= 4.0.0)
-    - MLKitVision (~> 8.0)
-  - MLKitTextRecognitionJapanese (4.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitTextRecognitionCommon (= 4.0.0)
-    - MLKitVision (~> 8.0)
-  - MLKitTextRecognitionKorean (4.0.0):
-    - MLKitCommon (~> 12.0)
-    - MLKitTextRecognitionCommon (= 4.0.0)
-    - MLKitVision (~> 8.0)
   - MLKitVision (8.0.0):
     - GoogleToolboxForMac/Logger (< 5.0, >= 4.2.1)
     - "GoogleToolboxForMac/NSData+zlib (< 5.0, >= 4.2.1)"
@@ -103,10 +72,6 @@ DEPENDENCIES:
   - flutter_pdfview (from `.symlinks/plugins/flutter_pdfview/ios`)
   - google_mlkit_barcode_scanning (from `.symlinks/plugins/google_mlkit_barcode_scanning/ios`)
   - google_mlkit_commons (from `.symlinks/plugins/google_mlkit_commons/ios`)
-  - GoogleMLKit/TextRecognitionChinese (~> 7.0.0)
-  - GoogleMLKit/TextRecognitionDevanagari (~> 7.0.0)
-  - GoogleMLKit/TextRecognitionJapanese (~> 7.0.0)
-  - GoogleMLKit/TextRecognitionKorean (~> 7.0.0)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
 
@@ -120,11 +85,6 @@ SPEC REPOS:
     - MLImage
     - MLKitBarcodeScanning
     - MLKitCommon
-    - MLKitTextRecognitionChinese
-    - MLKitTextRecognitionCommon
-    - MLKitTextRecognitionDevanagari
-    - MLKitTextRecognitionJapanese
-    - MLKitTextRecognitionKorean
     - MLKitVision
     - nanopb
     - PromisesObjC
@@ -163,16 +123,11 @@ SPEC CHECKSUMS:
   MLImage: 0ad1c5f50edd027672d8b26b0fee78a8b4a0fc56
   MLKitBarcodeScanning: 0a3064da0a7f49ac24ceb3cb46a5bc67496facd2
   MLKitCommon: 07c2c33ae5640e5380beaaa6e4b9c249a205542d
-  MLKitTextRecognitionChinese: a7e2d3e54d8be80091f7064741c54e2298a9d498
-  MLKitTextRecognitionCommon: cd44577a8c506fc6bba065096de03bec0d01a213
-  MLKitTextRecognitionDevanagari: b7a59a5e337ccb669eae82a503aa8e9287ba0c58
-  MLKitTextRecognitionJapanese: 4a62c24ecf1cbaeccc8a235c81c0ba397807d7d8
-  MLKitTextRecognitionKorean: b86e13e4a648efc7727d3261ddbf8afbf467c5c1
   MLKitVision: 45e79d68845a2de77e2dd4d7f07947f0ed157b0e
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
 
-PODFILE CHECKSUM: 1f13d5709a806bb894f8bcdb7d810af5edd51f8a
+PODFILE CHECKSUM: e581ef248ff8994f2d3fd05ce1431bba44f260ba
 
 COCOAPODS: 1.16.2
